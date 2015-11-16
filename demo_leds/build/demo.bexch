@@ -1,0 +1,28 @@
+[GENERATED OBJECT FILE]
+b__demo.o
+[PROJECT FILES]
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/demo_leds.gpr
+20151116133714
+[BOUND OBJECT FILES]
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/demo.o
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/stm32f4.o
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/stm32f4-gpio.o
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/stm32f4-reset_clock_control.o
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/stm32f4-sysconfig_control.o
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/registers.o
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/button.o
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/leds.o
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/last_chance_handler.o
+/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/driver.o
+[GENERATED SOURCE FILES]
+b__demo.ads
+b__demo.adb
+b__demo.ali
+[RESULTING OPTIONS]
+-L/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/
+-L/home/mike/repositories/stm32_/stm32f4-ada/demo_leds/build/
+-L/home/mike/opt/gnat-gpl-2015-arm-elf-linux-bin/arm-eabi/lib/gnat/ravenscar-sfp-stm32f4/adalib/
+-static
+-static-libgcc
+/home/mike/opt/gnat-gpl-2015-arm-elf-linux-bin/arm-eabi/lib/gnat/ravenscar-sfp-stm32f4/adalib/libgnarl.a
+/home/mike/opt/gnat-gpl-2015-arm-elf-linux-bin/arm-eabi/lib/gnat/ravenscar-sfp-stm32f4/adalib/libgnat.a
