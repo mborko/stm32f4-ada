@@ -3,6 +3,8 @@
 # Part of the stm32f4-discovery project
 #
 #######################################
+PATH := "$(PATH):/home/mike/opt/gnat-arm/bin"
+SHELL := env PATH=$(PATH) /bin/bash -c
 
 # TARGET: name of the output file
 TARGET = demo
@@ -29,6 +31,8 @@ endif
 #######################################
 OBJCOPY = arm-none-eabi-objcopy
 OPENOCD = openocd
+BUILD	= @$(SHELL) gprbuild -v
+CLEAN	= @$(SHELL) gprclean -v
 FLASH	= st-flash
 RM      = rm -rf
 MKDIR	= mkdir -p
@@ -44,7 +48,7 @@ all: $(OUTDIR)/$(TARGET).bin
 
 $(OUTDIR)/$(TARGET): $(OUTDIR)
 	@echo -e "Building\t\t"$(CYAN)$^$(NORMAL)
-	gprbuild
+	$(BUILD)
 
 $(MAINFILE): $(OUTDIR)/$(TARGET)
 	@$(OBJCOPY) -O binary $< $@
@@ -66,6 +70,9 @@ cleanall:
 	-$(RM) $(OUTDIR)/*
 
 clean:
-	gprclean
+	$(CLEAN)
+
+test:
+	$(BUILD)
 
 .PHONY: all clean
