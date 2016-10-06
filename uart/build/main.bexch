@@ -1,0 +1,52 @@
+[GENERATED OBJECT FILE]
+b__main.o
+[PROJECT FILES]
+/home/mike/repositories/ada_/stm32f4-ada/uart/main.gpr
+20161005140925
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/services/services.gpr
+20161006132419
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/components/components.gpr
+20161006132419
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/ARM/cortex_m/cortex_m4f.gpr
+20161006132419
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/hal/HAL.gpr
+20161006132419
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/ARM/STM32/stm32f40x.gpr
+20161006132419
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/embedded-runtimes/ravenscar-stm32f407disco/target_options.gpr
+20161006132420
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/embedded-runtimes/ravenscar-stm32f407disco/runtime_build.gpr
+20161006132420
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/embedded-runtimes/ravenscar-stm32f407disco/ravenscar_build.gpr
+20161006132420
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/boards/stm32f407_discovery/board.gpr
+20161006132419
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/boards/stm32f407_discovery.gpr
+20161006132419
+/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/boards/stm32f407_discovery/config.gpr
+20161006132419
+[BOUND OBJECT FILES]
+/home/mike/repositories/ada_/stm32f4-ada/uart/build/main.o
+/home/mike/repositories/ada_/stm32f4-ada/uart/build/serial.o
+/home/mike/repositories/ada_/stm32f4-ada/uart/build/leds.o
+/home/mike/repositories/ada_/stm32f4-ada/uart/build/last_chance_handler.o
+[GENERATED SOURCE FILES]
+b__main.ads
+b__main.adb
+b__main.ali
+[RESULTING OPTIONS]
+-L/home/mike/repositories/ada_/stm32f4-ada/uart/build/
+-L/home/mike/repositories/ada_/stm32f4-ada/uart/build/
+-L/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/boards/lib/stm32f407disco/ravenscar-sfp/Debug/
+-L/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/boards/stm32f407_discovery/lib/stm32f407disco/ravenscar-sfp/Debug/
+-L/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/embedded-runtimes/ravenscar-stm32f407disco/sfp/adalib/
+-L/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/ARM/STM32/lib/stm32f407disco/ravenscar-sfp/Debug/
+-L/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/hal/lib/stm32f407disco/ravenscar-sfp/Debug/
+-L/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/ARM/cortex_m/lib/cortex-m4f/stm32f407disco/ravenscar-sfp/Debug/
+-L/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/components/lib/stm32f407disco/ravenscar-sfp/Debug/
+-L/home/mike/repositories/ada_/stm32f4-ada/Ada_Drivers_Library/services/lib/stm32f407disco/ravenscar-sfp/Debug/
+-L/home/mike/opt/gnat-gpl-2016-arm-elf-linux-bin/arm-eabi/lib/gnat/ravenscar-sfp-stm32f4/adalib/
+-static
+-static-libgcc
+/home/mike/opt/gnat-gpl-2016-arm-elf-linux-bin/arm-eabi/lib/gnat/ravenscar-sfp-stm32f4/adalib/libgnarl.a
+/home/mike/opt/gnat-gpl-2016-arm-elf-linux-bin/arm-eabi/lib/gnat/ravenscar-sfp-stm32f4/adalib/libgnat.a
