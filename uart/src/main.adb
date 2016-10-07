@@ -15,12 +15,13 @@ procedure main is
 begin
 
    serial.initialize_gpio
-     (tx_pin => stm32.device.PB6,
-      rx_pin => stm32.device.PB7,
-      af     => stm32.device.GPIO_AF_7_USART1);
+     (tx_pin => stm32.device.PA2,
+      rx_pin => stm32.device.PA3,
+      af     => stm32.device.GPIO_AF_7_USART2
+     );
 
    serial.configure
-     (device      => stm32.device.USART_1'access,
+     (device      => stm32.device.USART_2'access,
       baud_rate   => 115200,
       mode        => stm32.usarts.TX_MODE,
       parity      => stm32.usarts.NO_PARITY,
@@ -32,7 +33,7 @@ begin
 
       delay until clock + milliseconds (100);
 
-      serial.put (stm32.device.USART_1,
+      serial.put (stm32.device.USART_2,
          "[" & integer'image(counter) & "]  hello, world!" & ASCII.CR);
 
       if counter < integer'last then

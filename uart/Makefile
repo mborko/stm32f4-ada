@@ -15,7 +15,6 @@ $(OUTDIR):
 
 clean:
 	gprclean -P main.gpr
-	rm build/*.su
 
 cleanall:
 	-$(RM) $(OUTDIR)/*
