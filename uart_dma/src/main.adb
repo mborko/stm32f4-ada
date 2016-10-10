@@ -54,10 +54,10 @@ with STM32F4_DMA_Interrupts; use STM32F4_DMA_Interrupts;
 
 procedure Main is
 
-   type Data is array (1 .. 32) of Character; -- arbitrary size and component
+   type Data is array (1 .. 8) of Character; -- arbitrary size and component
    for Data'Component_Size use 8;
 
-   Source_Block  : constant Data := "12345678901234567890123456789012";
+   Source_Block  : constant Data := "12345678";
    Bytes_To_Transfer : constant := Data'Length;
 
    Event_Kind : DMA_Interrupt;
@@ -191,14 +191,6 @@ begin
       loop
          Turn_On (Status_LED);
          delay until Clock + Milliseconds (Interval);
-
-         Start_Transfer_with_Interrupts
-           (Controller,
-            Tx_Stream,
-            Source      => Source_Block'Address,
-            Destination => Data_Register_Address (Transceiver),
-            Data_Count  => Bytes_To_Transfer);
-         Enable_DMA_Transmit_Requests (Transceiver);
 
          Turn_Off (Status_LED);
          delay until Clock + Milliseconds (Interval);

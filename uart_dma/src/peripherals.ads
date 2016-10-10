@@ -40,7 +40,6 @@ with STM32.Device;       use STM32.Device;
 package Peripherals is
 
    Transceiver : USART renames USART_2;
-
    Transceiver_AF : constant stm32.GPIO_Alternate_Function := stm32.device.GPIO_AF_7_USART2;
 
    TX_Pin : constant GPIO_Point := PA2;
@@ -49,10 +48,9 @@ package Peripherals is
    Controller : DMA_Controller renames DMA_1;
 
    Tx_Channel : constant DMA_Channel_Selector := Channel_4;
-
    Tx_Stream : constant DMA_Stream_Selector := Stream_6;
 
    DMA_Tx_IRQ : constant Ada.Interrupts.Interrupt_ID := DMA1_Stream6_Interrupt;
-   --  must match that of the selected controller and stream number!!!!
+   --  must match that of the selected controller and stream number!
 
 end Peripherals;

@@ -37,13 +37,16 @@ with HAL; use HAL;
 
 package Serial_Port is
 
+   MESSAGE_SIZE : constant Integer := 16;
+   DEBUG_MESSAGE_SIZE : constant Integer := 1024;	--  arbitrary size
+
    type Message (Physical_Size : Positive) is
       record
          Content               : String (1 .. Physical_Size);
          Logical_Size          : Natural := 0;
          Reception_Complete    : Suspension_Object;
          Transmission_Complete : Suspension_Object;
-         Terminator            : Character := ASCII.NUL;  -- ASCII.EOM ?
+         Terminator            : Character := '["FF"]'; -- ASCII.NUL;  -- ASCII.EOM ?
       end record;
 
    procedure Set (This : in out Message;  To : String) with
@@ -73,6 +76,8 @@ package Serial_Port is
       procedure Start_Sending (Msg : not null access Message);
 
       procedure Start_Receiving (Msg : not null access Message);
+
+      procedure Transmit (c : character);
 
    private
 

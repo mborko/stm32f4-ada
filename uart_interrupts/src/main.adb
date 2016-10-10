@@ -34,56 +34,54 @@
 
 --  The file declares the main procedure for the demonstration.
 
-with STM32;                        use STM32;
-with STM32.GPIO;                   use STM32.GPIO;
-with STM32.USARTs;                 use STM32.USARTs;
-
-with STM32.Device;                 use STM32.Device;
+with STM32;			use STM32;
+with STM32.Board;		use STM32.Board;
+with STM32.GPIO;		use STM32.GPIO;
+with STM32.USARTs;		use STM32.USARTs;
+with STM32.Device;		use STM32.Device;
 
 with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
+with ada.real_time;  use ada.real_time;
 
-with Peripherals;                  use Peripherals;
-with Serial_Port;                  use Serial_Port;
+with Peripherals;		use Peripherals;
+with Serial_Port;		use Serial_Port;
 
-with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
+with Last_Chance_Handler;	pragma Unreferenced (Last_Chance_Handler);
 
 procedure Main is
 
-   Outgoing : aliased Message (Physical_Size => 1024);  -- arbitrary size
+   type Sequence is range -1 .. 238; -- maximum Sequence Number 0xEE
+   sequence_number : Sequence := -1;
+   function get_sqnr return Sequence is
+   begin
+      if sequence_number < Sequence'Last then
+         sequence_number := sequence_number + 1;
+      else
+         sequence_number := 0;
+      end if;
+      return sequence_number;
+   end get_sqnr;
 
-   procedure Initialize_STMicro_UART;
+   Outgoing : aliased Message (Physical_Size => MESSAGE_SIZE);
+   Received : aliased Message (Physical_Size => MESSAGE_SIZE);
+   Debug : aliased Message (Physical_Size => DEBUG_MESSAGE_SIZE);
 
-   procedure Initialize;
+   ------------------------------
+   -- Initialize_Communication --
+   ------------------------------
 
-   procedure Interact;
-
-   -----------------------------
-   -- Initialize_STMicro_UART --
-   -----------------------------
-
-   procedure Initialize_STMicro_UART is
+   procedure Initialize_Communication is
       Configuration : GPIO_Port_Configuration;
    begin
       Enable_Clock (Transceiver);
       Enable_Clock (RX_Pin & TX_Pin);
 
       Configuration.Mode := Mode_AF;
-      Configuration.Speed := Speed_50MHz;
+      Configuration.Speed := Speed_100MHz;
       Configuration.Output_Type := Push_Pull;
       Configuration.Resistors := Pull_Up;
-
       Configure_IO (RX_Pin & TX_Pin, Config => Configuration);
-
       Configure_Alternate_Function (RX_Pin & TX_Pin,  AF => Transceiver_AF);
-   end Initialize_STMicro_UART;
-
-   ----------------
-   -- Initialize --
-   ----------------
-
-   procedure Initialize is
-   begin
-      Initialize_STMicro_UART;
 
       Disable (Transceiver);
 
@@ -95,34 +93,80 @@ procedure Main is
       Set_Flow_Control (Transceiver, No_Flow_Control);
 
       Enable (Transceiver);
+   end Initialize_Communication;
+
+   ------------------------
+   -- Initialize_DebugIO --
+   ------------------------
+
+   procedure Initialize_DebugIO is
+      Configuration : GPIO_Port_Configuration;
+   begin
+      Enable_Clock (Debug_Transceiver);
+      Enable_Clock (Debug_RX_Pin & Debug_TX_Pin);
+
+      Configuration.Mode := Mode_AF;
+      Configuration.Speed := Speed_100MHz;
+      Configuration.Output_Type := Push_Pull;
+      Configuration.Resistors := Pull_Up;
+
+      Configure_IO (Debug_RX_Pin & Debug_TX_Pin, Config => Configuration);
+
+      Configure_Alternate_Function (Debug_RX_Pin & Debug_TX_Pin,  AF => Debug_Transceiver_AF);
+
+      Disable (Debug_Transceiver);
+
+      Set_Baud_Rate    (Debug_Transceiver, 115_200);
+      Set_Mode         (Debug_Transceiver, Tx_Mode);
+      Set_Stop_Bits    (Debug_Transceiver, Stopbits_1);
+      Set_Word_Length  (Debug_Transceiver, Word_Length_8);
+      Set_Parity       (Debug_Transceiver, No_Parity);
+      Set_Flow_Control (Debug_Transceiver, No_Flow_Control);
+
+      Enable (Debug_Transceiver);
+   end Initialize_DebugIO;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize is
+   begin
+      Initialize_Communication;
+      Initialize_DebugIO;
+      -- STM32 Init functions
+      initialize_leds;
    end Initialize;
 
-   --------------
-   -- Interact --
-   --------------
-
-   procedure Interact is
-      Received : aliased Message (Physical_Size => 1024);  -- arbitrary size
-   begin
-      Received.Terminator := ASCII.CR;
-      loop
-         Peripherals.COM.Start_Receiving (Received'Unchecked_Access);
-         Suspend_Until_True (Received.Reception_Complete);
-
-         Set (Outgoing, To => "Received : " & As_String (Received));
-         Peripherals.COM.Start_Sending (Outgoing'Unchecked_Access);
-         Suspend_Until_True (Outgoing.Transmission_Complete);
-      end loop;
-   end Interact;
 
 begin
    Initialize;
 
-   Set (Outgoing, To => "Enter text, terminated by CR.");
-   Peripherals.COM.Start_Sending (Outgoing'Unchecked_Access);
-   Suspend_Until_True (Outgoing.Transmission_Complete);
+   loop
+      delay until clock + milliseconds (70);
+      toggle (blue);
 
-   Interact;
+
+      Set (Outgoing, To => Character'Enum_Val(get_sqnr) & "               " );	-- 15 spaces
+      --  Set (Outgoing, To => Character'Enum_Val(get_sqnr) & " " );			-- only one space
+      Peripherals.COM.Start_Sending (Outgoing'Unchecked_Access);
+      Suspend_Until_True (Outgoing.Transmission_Complete);
+
+      -- if Interrupt_Enabled (Transceiver, Received_Data_Not_Empty) = false then
+      --   Received.Terminator := '["5E"]';  -- Caret  '^'
+         Peripherals.COM.Start_Receiving (Received'Unchecked_Access);
+      -- else
+         if Current_State( Received.Reception_Complete ) then
+            Set (green);
+            Set (Debug, To => "Received : " & As_String (Received));
+            Peripherals.Debug_COM.Start_Sending (Debug'Unchecked_Access);
+            -- Disable_Interrupts (Transceiver, Received_Data_Not_Empty);
+            Set_False (Received.Reception_Complete);
+            Clear (green);
+         end if;
+      -- end if;
+
+   end loop;
 end Main;
 
 

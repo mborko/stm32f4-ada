@@ -38,15 +38,25 @@ with Ada.Interrupts.Names; use Ada.Interrupts.Names;
 
 package Peripherals is
 
+   --
+   -- Communication Port
+   --
    Transceiver : USART renames USART_2;
-
    TX_Pin : constant GPIO_Point := PA2;
    RX_Pin : constant GPIO_Point := PA3;
-
    Transceiver_Interrupt_Id : constant Interrupt_ID := USART2_Interrupt;
-
    Transceiver_AF : constant stm32.GPIO_Alternate_Function := GPIO_AF_7_USART2;
-
    COM : Serial_Port.Controller (Transceiver'Access, Transceiver_Interrupt_Id);
+
+   --
+   -- Debug Message Port
+   --
+   Debug_Transceiver : USART renames USART_3;
+   Debug_TX_Pin : constant GPIO_Point := PC10;
+   Debug_RX_Pin : constant GPIO_Point := PC11;
+   Debug_Transceiver_Interrupt_Id : constant Interrupt_ID := USART3_Interrupt;
+   Debug_Transceiver_AF : constant stm32.GPIO_Alternate_Function := GPIO_AF_7_USART3;
+   Debug_COM : Serial_Port.Controller (Debug_Transceiver'Access, Debug_Transceiver_Interrupt_Id);
+
 
 end Peripherals;

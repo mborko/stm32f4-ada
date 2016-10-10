@@ -110,7 +110,7 @@ package body Serial_Port is
 
       procedure Handle_Transmission is
       begin
-         --  if Word_Lenth = 9 then
+         --  if Word_Length = 9 then
          --    -- handle the extra byte required for the 9th bit
          --  else  -- 8 data bits so no extra byte involved
          Transmit (Device.all, Character'Pos (Outgoing_Msg.Content (Next_Out)));
@@ -184,6 +184,18 @@ package body Serial_Port is
          Enable_Interrupts (Device.all, Source => Error);
          Enable_Interrupts (Device.all, Source => Transmit_Data_Register_Empty);
       end Start_Sending;
+
+      --------------
+      -- Transmit --
+      --------------
+
+      procedure Transmit (c : character) is
+      begin
+         loop
+            exit when stm32.usarts.tx_ready (device.all);
+         end loop;
+         stm32.USARTs.Transmit (Device.all, character'pos (c));
+      end Transmit;
 
       ---------------------
       -- Start_Receiving --
