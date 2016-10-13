@@ -39,18 +39,28 @@ with STM32.Device;       use STM32.Device;
 
 package Peripherals is
 
-   Transceiver : USART renames USART_2;
-   Transceiver_AF : constant stm32.GPIO_Alternate_Function := stm32.device.GPIO_AF_7_USART2;
-
-   TX_Pin : constant GPIO_Point := PA2;
-   RX_Pin : constant GPIO_Point := PA3;
-
    Controller : DMA_Controller renames DMA_1;
 
-   Tx_Channel : constant DMA_Channel_Selector := Channel_4;
-   Tx_Stream : constant DMA_Stream_Selector := Stream_6;
+   Com_Transceiver : USART renames USART_2;
+   Com_Transceiver_AF : constant stm32.GPIO_Alternate_Function := stm32.device.GPIO_AF_7_USART2;
+   Com_TX_Pin : constant GPIO_Point := PA2;
+   Com_RX_Pin : constant GPIO_Point := PA3;
 
-   DMA_Tx_IRQ : constant Ada.Interrupts.Interrupt_ID := DMA1_Stream6_Interrupt;
+   Com_Tx_Channel : constant DMA_Channel_Selector := Channel_4;
+   Com_Tx_Stream : constant DMA_Stream_Selector := Stream_6;
+   Com_Rx_Channel : constant DMA_Channel_Selector := Channel_4;
+   Com_Rx_Stream : constant DMA_Stream_Selector := Stream_5;
+   DMA_Com_Tx_IRQ : constant Ada.Interrupts.Interrupt_ID := DMA1_Stream6_Interrupt;
+   DMA_Com_Rx_IRQ : constant Ada.Interrupts.Interrupt_ID := DMA1_Stream5_Interrupt;
    --  must match that of the selected controller and stream number!
+
+   Debug_Transceiver : USART renames USART_3;
+   Debug_Transceiver_AF : constant stm32.GPIO_Alternate_Function := GPIO_AF_7_USART3;
+   Debug_TX_Pin : constant GPIO_Point := PC10;
+   Debug_RX_Pin : constant GPIO_Point := PC11;
+
+   Debug_Tx_Channel : constant DMA_Channel_Selector := Channel_4;
+   Debug_Tx_Stream : constant DMA_Stream_Selector := Stream_3;
+   DMA_Debug_Tx_IRQ : constant Ada.Interrupts.Interrupt_ID := DMA1_Stream3_Interrupt;
 
 end Peripherals;

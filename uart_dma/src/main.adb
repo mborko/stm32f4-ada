@@ -54,59 +54,78 @@ with STM32F4_DMA_Interrupts; use STM32F4_DMA_Interrupts;
 
 procedure Main is
 
-   type Data is array (1 .. 8) of Character; -- arbitrary size and component
+   type Data is array (1 .. 17) of Character; -- arbitrary size and component
    for Data'Component_Size use 8;
 
-   Source_Block  : constant Data := "12345678";
+   --   Source_Block  : constant Data := "1234567890123456";
+   Source_Block : Data := "                " & Character'Enum_Val(16#ff#);
+   Destination_Block : Data := "1234567890123456" & Character'Enum_Val(16#ff#);
+
    Bytes_To_Transfer : constant := Data'Length;
 
    Event_Kind : DMA_Interrupt;
-
-   procedure Initialize_GPIO_Port_Pins;
-
-   procedure Initialize_USART;
 
    procedure Initialize_DMA;
 
    procedure Blink_LEDs;
 
-   -------------------------------
-   -- Initialize_GPIO_Port_Pins --
-   -------------------------------
-
-   procedure Initialize_GPIO_Port_Pins is
+   ------------------------------
+   -- Initialize_Communication --
+   ------------------------------
+   procedure Initialize_Communication is
       Configuration : GPIO_Port_Configuration;
    begin
-      Enable_Clock (RX_Pin & TX_Pin);
+      Enable_Clock (Com_Transceiver);
+      Enable_Clock (Com_RX_Pin & Com_TX_Pin);
 
       Configuration.Mode := Mode_AF;
-      Configuration.Speed := Speed_50MHz;
+      Configuration.Speed := Speed_100MHz;
+      Configuration.Output_Type := Push_Pull;
+      Configuration.Resistors := Pull_Up;
+      Configure_IO (Com_RX_Pin & Com_TX_Pin, Config => Configuration);
+      Configure_Alternate_Function (Com_RX_Pin & Com_TX_Pin,  AF => Com_Transceiver_AF);
+
+      Disable (Com_Transceiver);
+
+      Set_Baud_Rate    (Com_Transceiver, 115_200);
+      Set_Mode         (Com_Transceiver, Tx_Rx_Mode);
+      Set_Stop_Bits    (Com_Transceiver, Stopbits_1);
+      Set_Word_Length  (Com_Transceiver, Word_Length_8);
+      Set_Parity       (Com_Transceiver, No_Parity);
+      Set_Flow_Control (Com_Transceiver, No_Flow_Control);
+
+      Enable (Com_Transceiver);
+   end Initialize_Communication;
+
+   ------------------------
+   -- Initialize_DebugIO --
+   ------------------------
+   procedure Initialize_DebugIO is
+      Configuration : GPIO_Port_Configuration;
+   begin
+      Enable_Clock (Debug_Transceiver);
+      Enable_Clock (Debug_RX_Pin & Debug_TX_Pin);
+
+      Configuration.Mode := Mode_AF;
+      Configuration.Speed := Speed_100MHz;
       Configuration.Output_Type := Push_Pull;
       Configuration.Resistors := Pull_Up;
 
-      Configure_IO (RX_Pin & TX_Pin,  Config => Configuration);
+      Configure_IO (Debug_RX_Pin & Debug_TX_Pin, Config => Configuration);
 
-      Configure_Alternate_Function (RX_Pin & TX_Pin,  AF => Transceiver_AF);
-   end Initialize_GPIO_Port_Pins;
+      Configure_Alternate_Function (Debug_RX_Pin & Debug_TX_Pin,  AF => Debug_Transceiver_AF);
 
+      Disable (Debug_Transceiver);
 
-   ----------------------
-   -- Initialize_USART --
-   ----------------------
+      Set_Baud_Rate    (Debug_Transceiver, 115_200);
+      Set_Mode         (Debug_Transceiver, Tx_Mode);
+      Set_Stop_Bits    (Debug_Transceiver, Stopbits_1);
+      Set_Word_Length  (Debug_Transceiver, Word_Length_8);
+      Set_Parity       (Debug_Transceiver, No_Parity);
+      Set_Flow_Control (Debug_Transceiver, No_Flow_Control);
 
-   procedure Initialize_USART is
-   begin
-      Enable_Clock (Transceiver);
-
-      Enable (Transceiver);
-
-      Set_Baud_Rate    (Transceiver, 115_200);
-      Set_Mode         (Transceiver, Tx_Mode);
-      Set_Stop_Bits    (Transceiver, Stopbits_1);
-      Set_Word_Length  (Transceiver, Word_Length_8);
-      Set_Parity       (Transceiver, No_Parity);
-      Set_Flow_Control (Transceiver, No_Flow_Control);
-   end Initialize_USART;
+      Enable (Debug_Transceiver);
+   end Initialize_DebugIO;
 
 
    --------------------
@@ -118,7 +137,7 @@ procedure Main is
    begin
       Enable_Clock (Controller);
 
-      Configuration.Channel                      := Tx_Channel;
+      Configuration.Channel                      := Com_Tx_Channel;
       Configuration.Direction                    := Memory_To_Peripheral;
       Configuration.Increment_Peripheral_Address := False;
       Configuration.Increment_Memory_Address     := True;
@@ -128,11 +147,42 @@ procedure Main is
       Configuration.Priority                     := Priority_Very_High;
       Configuration.FIFO_Enabled                 := True;
       Configuration.FIFO_Threshold               := FIFO_Threshold_Full_Configuration;
-      Configuration.Memory_Burst_Size            := Memory_Burst_Inc4;
-      Configuration.Peripheral_Burst_Size        := Peripheral_Burst_Inc4;
+      Configuration.Memory_Burst_Size            := Memory_Burst_Single;
+      Configuration.Peripheral_Burst_Size        := Peripheral_Burst_Single;
 
-      Configure (Controller, Tx_Stream, Configuration);
+      Configure (Controller, Com_Tx_Stream, Configuration);
       --  note the controller is disabled by the call to Configure
+
+      Configuration.Channel                      := Debug_Tx_Channel;
+      Configuration.Direction                    := Memory_To_Peripheral;
+      Configuration.Increment_Peripheral_Address := False;
+      Configuration.Increment_Memory_Address     := True;
+      Configuration.Peripheral_Data_Format       := Bytes;
+      Configuration.Memory_Data_Format           := Bytes;
+      Configuration.Operation_Mode               := Normal_Mode;
+      Configuration.Priority                     := Priority_Very_High;
+      Configuration.FIFO_Enabled                 := True;
+      Configuration.FIFO_Threshold               := FIFO_Threshold_Full_Configuration;
+      Configuration.Memory_Burst_Size            := Memory_Burst_Single;
+      Configuration.Peripheral_Burst_Size        := Peripheral_Burst_Single;
+
+      Configure (Controller, Debug_Tx_Stream, Configuration);
+      --  note the controller is disabled by the call to Configure
+
+      Configuration.Channel                      := Com_Rx_Channel;
+      Configuration.Direction                    := Peripheral_To_Memory;
+      Configuration.Increment_Peripheral_Address := False;
+      Configuration.Increment_Memory_Address     := True;
+      Configuration.Peripheral_Data_Format       := Bytes;
+      Configuration.Memory_Data_Format           := Bytes;
+      Configuration.Operation_Mode               := Circular_Mode;
+      Configuration.Priority                     := Priority_Very_High;
+      Configuration.FIFO_Enabled                 := True;
+      Configuration.FIFO_Threshold               := FIFO_Threshold_Full_Configuration;
+      Configuration.Memory_Burst_Size            := Memory_Burst_Single;
+      Configuration.Peripheral_Burst_Size        := Peripheral_Burst_Single;
+
+      Configure (Controller, Com_Rx_Stream, Configuration);
    end Initialize_DMA;
 
 
@@ -144,9 +194,9 @@ procedure Main is
    begin
       for K in 1 .. 3 loop
          All_LEDs_On;
-         delay until Clock + Milliseconds (200);
+         delay until Clock + Milliseconds (100);
          All_LEDs_Off;
-         delay until Clock + Milliseconds (200);
+         delay until Clock + Milliseconds (100);
       end loop;
    end Blink_LEDs;
 
@@ -155,45 +205,78 @@ begin
 
    Blink_LEDs; --  just to signal that we are indeed running...
 
-   Initialize_GPIO_Port_Pins;
-   Initialize_USART;
+   Initialize_Communication;
+   Initialize_DebugIO;
+
    Initialize_DMA;
 
-   Enable (Transceiver);
-
-   Start_Transfer_with_Interrupts
-     (Controller,
-      Tx_Stream,
-      Source      => Source_Block'Address,
-      Destination => Data_Register_Address (Transceiver),
-      Data_Count  => Bytes_To_Transfer);
-   --  also enables the stream
-
---  TODO: clear the flags esp the overrun flag   ???
-
-   Enable_DMA_Transmit_Requests (Transceiver);
-
-   Handler.Await_Event (Event_Kind);
+   Enable (Com_Transceiver);
+   Enable (Debug_Transceiver);
 
    declare
       Status_LED : User_LED;
       Interval   : Integer := 100;  -- milliseconds between blinks, arbitrary
    begin
-      case Event_Kind is
-         when Direct_Mode_Error_Interrupt      => Status_LED := Blue;
-         when FIFO_Error_Interrupt             => Status_LED := Orange;
-         when Transfer_Error_Interrupt         => Status_LED := Red;
-         when Half_Transfer_Complete_Interrupt => Status_LED := Green;
-         when Transfer_Complete_Interrupt      => Status_LED := Green;
-            Interval := 800;
-            --  also change the blink rate, to distinguish from the HTCI
-      end case;
-      loop
-         Turn_On (Status_LED);
-         delay until Clock + Milliseconds (Interval);
 
-         Turn_Off (Status_LED);
-         delay until Clock + Milliseconds (Interval);
+      Start_Transfer (Controller,
+                      Com_Rx_Stream,
+                      Source  => Data_Register_Address (Com_Transceiver),
+                      Destination => Destination_Block'Address,
+                      Data_Count  => Bytes_To_Transfer);
+      Enable_DMA_Receive_Requests (Com_Transceiver);
+
+      loop
+         delay until clock + milliseconds (70); -- should be 70ms
+         toggle (blue);
+
+         --
+         --  Transmit over Com_DMA
+         --
+         Start_Transfer_with_Interrupts (Controller,
+                                         Com_Tx_Stream,
+                                         Source  => Source_Block'Address,
+                                         Destination => Data_Register_Address (Com_Transceiver),
+                                         Data_Count  => Bytes_To_Transfer);
+         Enable_DMA_Transmit_Requests (Com_Transceiver);
+         Handler.Await_Event (Event_Kind);
+
+         --
+         --  Receive over Com_DMA
+         --
+         --           Start_Transfer_with_Interrupts (Controller,
+         --                     Com_Rx_Stream,
+         --                     Source  => Data_Register_Address (Com_Transceiver),
+         --                     Destination => Destination_Block'Address,
+         --                     Data_Count  => Bytes_To_Transfer);
+         --           Enable_DMA_Receive_Requests (Com_Transceiver);
+         --           Handler.Await_Event (Event_Kind);
+         --
+         --           case Event_Kind is
+         --           when FIFO_Error_Interrupt             => Status_LED := Orange;
+         --           when Transfer_Error_Interrupt         => Status_LED := Red;
+         --           when Half_Transfer_Complete_Interrupt => Status_LED := Green;
+         --           when Transfer_Complete_Interrupt      => Status_LED := Green;
+         --              Interval := 200;
+         --              --  also change the blink rate, to distinguish from the HTCI
+         --           when Direct_Mode_Error_Interrupt      => Status_LED := Blue;
+         --           end case;
+         --
+         --           Turn_On (Status_LED);
+         --           delay until Clock + Milliseconds (Interval);
+         --
+         --           Turn_Off (Status_LED);
+         --           delay until Clock + Milliseconds (Interval);
+
+         --
+         --  Transmit over Debug_DMA
+         --
+         Start_Transfer_with_Interrupts (Controller,
+                                         Debug_Tx_Stream,
+                                         Source  => Destination_Block'Address,
+                                         Destination => Data_Register_Address (Debug_Transceiver),
+                                         Data_Count  => Bytes_To_Transfer);
+         Enable_DMA_Transmit_Requests (Debug_Transceiver);
+         Handler.Await_Event (Event_Kind);
       end loop;
    end;
 end Main;

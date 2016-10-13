@@ -30,6 +30,8 @@
 ------------------------------------------------------------------------------
 
 with STM32.DMA;         use STM32.DMA;
+with STM32.USARTs;  use STM32.USARTs;
+
 with Peripherals;       use Peripherals;
 
 package STM32F4_DMA_Interrupts is
@@ -44,8 +46,14 @@ package STM32F4_DMA_Interrupts is
       Event_Occurred : Boolean := False;
       Event_Kind     : DMA_Interrupt;
 
-      procedure IRQ_Handler;
-      pragma Attach_Handler (IRQ_Handler, DMA_Tx_IRQ);
+      procedure IRQ_Com_Tx_Handler;
+      procedure IRQ_Com_Rx_Handler;
+      procedure IRQ_Debug_Tx_Handler;
+      procedure IRQ_Handler (Stream : DMA_Stream_Selector; Transceiver : in out USART);
+
+      pragma Attach_Handler (IRQ_Com_Tx_Handler, DMA_Com_Tx_IRQ);
+      pragma Attach_Handler (IRQ_Com_Rx_Handler, DMA_Com_Rx_IRQ);
+      pragma Attach_Handler (IRQ_Debug_Tx_Handler, DMA_Debug_Tx_IRQ);
 
    end Handler;
 

@@ -29,8 +29,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with STM32.USARTs;  use STM32.USARTs;
-
 package body STM32F4_DMA_Interrupts is
 
    procedure Finalize_DMA_Transmission (Transceiver : in out USART);
@@ -67,14 +65,29 @@ package body STM32F4_DMA_Interrupts is
       -----------------
       -- IRQ_Handler --
       -----------------
+      procedure IRQ_Com_Tx_Handler is
+      begin
+         IRQ_Handler(Com_Tx_Stream, Com_Transceiver);
+      end IRQ_Com_Tx_Handler;
 
-      procedure IRQ_Handler is
+      procedure IRQ_Com_Rx_Handler is
+      begin
+         IRQ_Handler(Com_Rx_Stream, Com_Transceiver);
+      end IRQ_Com_Rx_Handler;
+
+      procedure IRQ_Debug_Tx_Handler is
+      begin
+         IRQ_Handler(Debug_Tx_Stream, Debug_Transceiver);
+      end IRQ_Debug_Tx_Handler;
+
+
+      procedure IRQ_Handler (Stream : DMA_Stream_Selector; Transceiver : in out USART) is
       begin
          --  Transfer Error Interrupt management
-         if Status (Controller, Tx_Stream, Transfer_Error_Indicated) then
-            if Interrupt_Enabled (Controller, Tx_Stream, Transfer_Error_Interrupt) then
-               Disable_Interrupt (Controller, Tx_Stream, Transfer_Error_Interrupt);
-               Clear_Status (Controller, Tx_Stream, Transfer_Error_Indicated);
+         if Status (Controller, Stream, Transfer_Error_Indicated) then
+            if Interrupt_Enabled (Controller, Stream, Transfer_Error_Interrupt) then
+               Disable_Interrupt (Controller, Stream, Transfer_Error_Interrupt);
+               Clear_Status (Controller, Stream, Transfer_Error_Indicated);
                Event_Kind := Transfer_Error_Interrupt;
                Event_Occurred := True;
                return;
@@ -82,10 +95,10 @@ package body STM32F4_DMA_Interrupts is
          end if;
 
          --  FIFO Error Interrupt management
-         if Status (Controller, Tx_Stream, FIFO_Error_Indicated) then
-            if Interrupt_Enabled (Controller, Tx_Stream, FIFO_Error_Interrupt) then
-               Disable_Interrupt (Controller, Tx_Stream, FIFO_Error_Interrupt);
-               Clear_Status (Controller, Tx_Stream, FIFO_Error_Indicated);
+         if Status (Controller, Stream, FIFO_Error_Indicated) then
+            if Interrupt_Enabled (Controller, Stream, FIFO_Error_Interrupt) then
+               Disable_Interrupt (Controller, Stream, FIFO_Error_Interrupt);
+               Clear_Status (Controller, Stream, FIFO_Error_Indicated);
                Event_Kind := FIFO_Error_Interrupt;
                Event_Occurred := True;
                return;
@@ -93,10 +106,10 @@ package body STM32F4_DMA_Interrupts is
          end if;
 
          --  Direct Mode Error Interrupt management
-         if Status (Controller, Tx_Stream, Direct_Mode_Error_Indicated) then
-            if Interrupt_Enabled (Controller, Tx_Stream, Direct_Mode_Error_Interrupt) then
-               Disable_Interrupt (Controller, Tx_Stream, Direct_Mode_Error_Interrupt);
-               Clear_Status (Controller, Tx_Stream, Direct_Mode_Error_Indicated);
+         if Status (Controller, Stream, Direct_Mode_Error_Indicated) then
+            if Interrupt_Enabled (Controller, Stream, Direct_Mode_Error_Interrupt) then
+               Disable_Interrupt (Controller, Stream, Direct_Mode_Error_Interrupt);
+               Clear_Status (Controller, Stream, Direct_Mode_Error_Indicated);
                Event_Kind := Direct_Mode_Error_Interrupt;
                Event_Occurred := True;
                return;
@@ -104,15 +117,15 @@ package body STM32F4_DMA_Interrupts is
          end if;
 
          --  Half Transfer Complete Interrupt management
-         if Status (Controller, Tx_Stream, Half_Transfer_Complete_Indicated) then
-            if Interrupt_Enabled (Controller, Tx_Stream, Half_Transfer_Complete_Interrupt) then
-               if Double_Buffered (Controller, Tx_Stream) then
-                  Clear_Status (Controller, Tx_Stream, Half_Transfer_Complete_Indicated);
+         if Status (Controller, Stream, Half_Transfer_Complete_Indicated) then
+            if Interrupt_Enabled (Controller, Stream, Half_Transfer_Complete_Interrupt) then
+               if Double_Buffered (Controller, Stream) then
+                  Clear_Status (Controller, Stream, Half_Transfer_Complete_Indicated);
                else -- not double buffered
-                  if not Circular_Mode (Controller, Tx_Stream) then
-                     Disable_Interrupt (Controller, Tx_Stream, Half_Transfer_Complete_Interrupt);
+                  if not Circular_Mode (Controller, Stream) then
+                     Disable_Interrupt (Controller, Stream, Half_Transfer_Complete_Interrupt);
                   end if;
-                  Clear_Status (Controller, Tx_Stream, Half_Transfer_Complete_Indicated);
+                  Clear_Status (Controller, Stream, Half_Transfer_Complete_Indicated);
                end if;
 --                 Event_Kind := Half_Transfer_Complete_Interrupt;
 --                 Event_Occurred := True;
@@ -120,16 +133,16 @@ package body STM32F4_DMA_Interrupts is
          end if;
 
          --  Transfer Complete Interrupt management
-         if Status (Controller, Tx_Stream, Transfer_Complete_Indicated) then
-            if Interrupt_Enabled (Controller, Tx_Stream, Transfer_Complete_Interrupt) then
-               if Double_Buffered (Controller, Tx_Stream) then
-                  Clear_Status (Controller, Tx_Stream, Transfer_Complete_Indicated);
+         if Status (Controller, Stream, Transfer_Complete_Indicated) then
+            if Interrupt_Enabled (Controller, Stream, Transfer_Complete_Interrupt) then
+               if Double_Buffered (Controller, Stream) then
+                  Clear_Status (Controller, Stream, Transfer_Complete_Indicated);
                   --  TODO: handle the difference between M0 and M1 callbacks
                else
-                  if not Circular_Mode (Controller, Tx_Stream) then
-                     Disable_Interrupt (Controller, Tx_Stream, Transfer_Complete_Interrupt);
+                  if not Circular_Mode (Controller, Stream) then
+                     Disable_Interrupt (Controller, Stream, Transfer_Complete_Interrupt);
                   end if;
-                  Clear_Status (Controller, Tx_Stream, Transfer_Complete_Indicated);
+                  Clear_Status (Controller, Stream, Transfer_Complete_Indicated);
                end if;
                Finalize_DMA_Transmission (Transceiver);
                Event_Kind := Transfer_Complete_Interrupt;
