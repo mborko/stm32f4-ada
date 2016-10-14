@@ -65,8 +65,9 @@ procedure Main is
 
    Event_Kind : DMA_Interrupt;
 
+   procedure Initialize_Communication;
+   procedure Initialize_DebugIO;
    procedure Initialize_DMA;
-
    procedure Blink_LEDs;
 
    ------------------------------
@@ -127,11 +128,9 @@ procedure Main is
       Enable (Debug_Transceiver);
    end Initialize_DebugIO;
 
-
    --------------------
    -- Initialize_DMA --
    --------------------
-
    procedure Initialize_DMA is
       Configuration : DMA_Stream_Configuration;
    begin
@@ -185,11 +184,9 @@ procedure Main is
       Configure (Controller, Com_Rx_Stream, Configuration);
    end Initialize_DMA;
 
-
    ----------------
    -- Blink_LEDs --
    ----------------
-
    procedure Blink_LEDs is
    begin
       for K in 1 .. 3 loop
@@ -207,7 +204,6 @@ begin
 
    Initialize_Communication;
    Initialize_DebugIO;
-
    Initialize_DMA;
 
    Enable (Com_Transceiver);
