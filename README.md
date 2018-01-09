@@ -1,9 +1,9 @@
 # stm32f4-ada
 Coding examples in Ada for STM32F4-Discovery
 
-To be able to compile the examples you have to download the [GNAT GPL Ada][https://www.adacore.com/download] from AdaCore. Be aware to put the **./bin** Directory to your PATH variable.
+To be able to compile the examples you have to download the [GNAT GPL Ada](https://www.adacore.com/download) from AdaCore. Be aware to put the **./bin** Directory to your PATH variable.
 
-For the HAL and Library Support use the [GitHub Repository][https://github.com/AdaCore/Ada_Drivers_Library] from AdaCore:
+For the HAL and Library Support use the [GitHub Repository](https://github.com/AdaCore/Ada_Drivers_Library) from AdaCore:
 
 ## Ada Drivers Library
 You should clone the AdaCore Libraries with the *--recursive* option (and afterwards link to it):
